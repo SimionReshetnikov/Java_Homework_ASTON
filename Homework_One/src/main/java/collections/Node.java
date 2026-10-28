@@ -1,3 +1,5 @@
+package collections;
+
 public class Node <K, V> {
     private int hash;
     private K key;
