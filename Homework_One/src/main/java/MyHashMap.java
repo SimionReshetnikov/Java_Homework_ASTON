@@ -56,6 +56,20 @@ public class MyHashMap <K, V> implements MyMap <K, V> {
 
     @Override
     public V get(K key) {
+        int hashKey = hash(key);
+        int indexTable = (table.length - 1) & hashKey;
+        Node<K, V> currentNode = table[indexTable];
+
+        while (currentNode != null) {
+            if (currentNode.getHash() == hashKey) {
+                if (currentNode.getKey() == key || key != null && key.equals(currentNode.getKey())) {
+                    return currentNode.getValue();
+                }
+            }
+
+            currentNode = currentNode.getNext();
+        }
+
         return null;
     }
 
