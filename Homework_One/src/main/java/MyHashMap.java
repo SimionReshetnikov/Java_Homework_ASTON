@@ -69,12 +69,32 @@ public class MyHashMap <K, V> implements MyMap <K, V> {
 
             currentNode = currentNode.getNext();
         }
-
         return null;
     }
 
     @Override
     public V remove(K key) {
+        int hashKey = hash(key);
+        int indexTable = (table.length - 1) & hashKey;
+        Node<K, V> currentNode = table[indexTable];
+        Node<K, V> prev = null;
+
+        while (currentNode != null) {
+            if (currentNode.getHash() == hashKey) {
+                if (currentNode.getKey() == key || key != null && key.equals(currentNode.getKey())) {
+                   V value = currentNode.getValue();
+                   if (prev == null) {
+                       table[indexTable] = currentNode.getNext();
+                   } else {
+                       prev.setNext(currentNode.getNext());
+                   }
+                    size--;
+                    return value;
+                }
+            }
+            prev = currentNode;
+            currentNode = currentNode.getNext();
+        }
         return null;
     }
 }
