@@ -1,10 +1,10 @@
 package collections;
 
-public class Node <K, V> {
+public class Node<K,V> {
     private int hash;
     private K key;
     private V value;
-    private Node<K, V> next = null;
+    private Node<K,V> next = null;
 
     public Node(int hash, K key, V value) {
         this.hash = hash;
@@ -28,11 +28,11 @@ public class Node <K, V> {
         this.value = newValue;
     }
 
-    public Node<K, V> getNext() {
+    public Node<K,V> getNext() {
         return next;
     }
 
-    public void setNext(Node<K, V> nextNode) {
+    public void setNext(Node<K,V> nextNode) {
         this.next = nextNode;
     }
 }
