@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface UserDAO {
     Optional<User> findById(long id);
     List<User> findAll();
-    boolean saveUser(User user);
+    User saveUser(User user);
     Optional<User> updateUser(long id, User updateUser);
-    void deleteUser(long id);
+    boolean deleteUser(long id);
 }
