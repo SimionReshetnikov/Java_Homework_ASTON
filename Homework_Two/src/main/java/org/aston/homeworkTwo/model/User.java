@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,5 +62,11 @@ public class User {
 
     public LocalDateTime getCreated_at() {
         return created_at;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("ID: %d, Имя: %s, Email: %s, Возраст: %d, Время создания: %s",
+                id, name, email, age, created_at);
     }
 }
