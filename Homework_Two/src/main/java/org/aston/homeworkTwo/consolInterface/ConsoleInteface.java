@@ -2,17 +2,20 @@ package org.aston.homeworkTwo.consolInterface;
 
 import org.aston.homeworkTwo.dao.UserDAO;
 import org.aston.homeworkTwo.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.List;
 
-public class ConsolInteface {
+public class ConsoleInteface {
     private static final Scanner SCANNER = new Scanner(System.in);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleInteface.class);
     private final UserDAO userDAO;
 
-    public ConsolInteface(UserDAO userDAO) {
+    public ConsoleInteface(UserDAO userDAO) {
         this.userDAO = userDAO;
     }
 
@@ -59,6 +62,7 @@ public class ConsolInteface {
         String ageString = SCANNER.nextLine().trim();
 
         if (name.isBlank() || email.isBlank()) {
+            LOGGER.warn("Попытка сохранить пользователя с пустым именем или email.");
             System.out.println("Имя и email не могут быть пустыми. Возврат в главное меню.");
             return;
         }
@@ -68,10 +72,13 @@ public class ConsolInteface {
             age = Integer.parseInt(ageString);
             User user = new User(name, email, age);
             User userSave = userDAO.saveUser(user);
+            LOGGER.info("Создан пользователь: user={}", userSave);
             System.out.println("Пользователь успешно добавлен: " + userSave);
         } catch (NumberFormatException ex) {
+            LOGGER.warn("Некорректный возраст при сохранении: {}", ageString);
             System.out.println("Некорректное значение возраста. Возврат в главное меню.");
         } catch (RuntimeException ex) {
+            LOGGER.error("Ошибка при сохранении пользователя.", ex);
             System.out.println("Не удалось добавить пользователя: " + ex.getMessage());
         }
     }
@@ -82,11 +89,8 @@ public class ConsolInteface {
         System.out.print("Id пользователя, информацию о котором необходимо изменить: ");
         String idString = SCANNER.nextLine().trim();
 
-        long id;
-        try {
-            id = Long.parseLong(idString);
-        } catch (NumberFormatException ex) {
-            System.out.println("Некорректное значение id. Возврат в главное меню.");
+        long id = getParseLong(idString);
+        if (id == -1) {
             return;
         }
 
@@ -102,6 +106,7 @@ public class ConsolInteface {
         try {
             Optional<User> existing = userDAO.findById(id);
             if (existing.isEmpty()) {
+                LOGGER.warn("Попытка найти пользователя с несуществующим id. id={}", id);
                 System.out.println("Пользователь с id = " + id + " не найден.");
                 return;
             }
@@ -114,13 +119,17 @@ public class ConsolInteface {
             User updateUser = new User(newName, newEmail, newAge);
             Optional<User> updated = userDAO.updateUser(id, updateUser);
             if (updated.isEmpty()) {
+                LOGGER.warn("Попытка найти пользователя с несуществующим id. id={}", id);
                 System.out.println("Пользователь с id = " + id + " не найден.");
                 return;
             }
+            LOGGER.info("Успешное изменение информации о пользователе. user={}", updated.get());
             System.out.println("Информация о пользователе успешно изменена: " + updated.get());
         } catch (NumberFormatException ex) {
+            LOGGER.warn("Попытка изменения данных о возрасте неуспешна, некорректное значение поля age.");
             System.out.println("Некорректное значение возраста. Возврат в главное меню.");
         } catch (RuntimeException ex) {
+            LOGGER.error("Ошибка при попытке изменить данные о пользователе.", ex);
             System.out.println("Не удалось изменить информацию о пользователе: " + ex.getMessage());
         }
     }
@@ -129,17 +138,15 @@ public class ConsolInteface {
         System.out.print("Введите id пользователя, которого хотите найти: ");
         String idString = SCANNER.nextLine().trim();
 
-        long id;
-        try {
-            id = Long.parseLong(idString);
-        } catch (NumberFormatException ex) {
-            System.out.println("Некорректное значение id. Возврат в главное меню.");
+        long id = getParseLong(idString);
+        if (id == -1) {
             return;
         }
 
         try {
             Optional<User> user = userDAO.findById(id);
             if (user.isEmpty()) {
+                LOGGER.warn("Попытка найти пользователя с несуществующим id. id={}", id);
                 System.out.println("Пользователь с id = " + id + " не найден.");
                 return;
             }
@@ -162,7 +169,7 @@ public class ConsolInteface {
                 System.out.println(user);
             }
         } catch (RuntimeException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println("Не удалось получить список пользователей: " + ex.getMessage());
         }
     }
 
@@ -170,20 +177,29 @@ public class ConsolInteface {
         System.out.print("Введите id пользователя, которого хотите удалить: ");
         String idString = SCANNER.nextLine().trim();
 
-        long id;
-        try {
-            id = Long.parseLong(idString);
-        } catch (NumberFormatException ex) {
-            System.out.println("Некорректное значение id. Возврат в главное меню.");
+        long id = getParseLong(idString);
+        if (id == -1) {
             return;
         }
 
         try {
             if (userDAO.deleteUser(id)) {
                 System.out.println("Пользователь успешно удален.");
+            } else {
+                System.out.println("Пользователь с id = " + id + " не найден.");
             }
         } catch (RuntimeException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println("Не удалось удалить пользователя: " + ex.getMessage());
+        }
+    }
+
+    private long getParseLong(String idString) {
+        try {
+            return Long.parseLong(idString);
+        } catch (NumberFormatException ex) {
+            LOGGER.warn("Введено некорректное значение id={}.", idString);
+            System.out.println("Некорректное значение id. Возврат в главное меню.");
+            return -1;
         }
     }
 }

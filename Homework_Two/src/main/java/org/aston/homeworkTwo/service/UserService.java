@@ -6,11 +6,14 @@ import org.aston.homeworkTwo.util.HibernateSessionFactoryUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
 
 public class UserService implements UserDAO {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     @Override
     public Optional<User> findById(long id) {
@@ -18,6 +21,7 @@ public class UserService implements UserDAO {
             User user = session.get(User.class, id);
             return Optional.ofNullable(user);
         } catch (Exception ex) {
+            LOGGER.error("Ошибка при поиске пользователя по id = {}", id, ex);
             throw new RuntimeException("Ошибка при поиске пользователя по id = " + id, ex);
         }
     }
@@ -27,6 +31,7 @@ public class UserService implements UserDAO {
         try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
             return session.createQuery("FROM User", User.class).list();
         } catch (Exception ex) {
+            LOGGER.error("Ошибка при получении списка пользователей", ex);
             throw new RuntimeException("Ошибка при получении списка пользователей", ex);
         }
     }
@@ -42,8 +47,10 @@ public class UserService implements UserDAO {
         } catch (Exception ex) {
             rollbackIfPossible(transaction);
             if (isConstraintViolation(ex)) {
+                LOGGER.error("Пользователь с таким email уже существует.", ex);
                 throw new RuntimeException("Пользователь с таким email уже существует.", ex);
             }
+            LOGGER.error("Ошибка при добавлении записи о пользователе.", ex);
             throw new RuntimeException("Ошибка при добавлении записи о пользователе.", ex);
         }
     }
@@ -66,8 +73,10 @@ public class UserService implements UserDAO {
         } catch (Exception ex) {
             rollbackIfPossible(transaction);
             if (isConstraintViolation(ex)) {
+                LOGGER.error("Пользователь с таким email уже существует.", ex);
                 throw new RuntimeException("Пользователь с таким email уже существует.", ex);
             }
+            LOGGER.error("Ошибка при изменении записи о пользователе.", ex);
             throw new RuntimeException("Ошибка при изменении записи о пользователе.", ex);
         }
     }
@@ -87,6 +96,7 @@ public class UserService implements UserDAO {
             return true;
         } catch (Exception ex) {
             rollbackIfPossible(transaction);
+            LOGGER.error("Ошибка при удалении записи о пользователе.", ex);
             throw new RuntimeException("Ошибка при удалении записи о пользователе.", ex);
         }
     }

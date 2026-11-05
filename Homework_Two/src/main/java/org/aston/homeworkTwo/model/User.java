@@ -21,7 +21,7 @@ public class User {
     private int age;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     public User() {}
 
@@ -29,7 +29,7 @@ public class User {
         this.name = name;
         this.email = email;
         this.age = age;
-        this.created_at = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -60,13 +60,20 @@ public class User {
         this.age = age;
     }
 
-    public LocalDateTime getCreated_at() {
-        return created_at;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
     @Override
     public String toString() {
         return String.format("ID: %d, Имя: %s, Email: %s, Возраст: %d, Время создания: %s",
-                id, name, email, age, created_at);
+                id, name, email, age, createdAt);
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 }

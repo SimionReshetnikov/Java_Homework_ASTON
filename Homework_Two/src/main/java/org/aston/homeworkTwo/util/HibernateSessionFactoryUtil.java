@@ -5,9 +5,13 @@ import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class HibernateSessionFactoryUtil {
     private static SessionFactory sessionFactory;
+    private static final Logger LOGGER = LoggerFactory.getLogger(HibernateSessionFactoryUtil.class);
 
     private HibernateSessionFactoryUtil() {}
 
@@ -20,9 +24,16 @@ public class HibernateSessionFactoryUtil {
                         .applySettings(configuration.getProperties());
                 sessionFactory = configuration.buildSessionFactory(builder.build());
             } catch (HibernateException ex) {
-                System.out.println("Не удалось открыть сессию Hibernate.");
+                LOGGER.error("Не удалось создать SessionFactory", ex);
+                throw new RuntimeException("Не удалось создать SessionFactory", ex);
             }
         }
         return sessionFactory;
+    }
+
+    public static void shutdown() {
+        if (sessionFactory != null) {
+            sessionFactory.close();
+        }
     }
 }
