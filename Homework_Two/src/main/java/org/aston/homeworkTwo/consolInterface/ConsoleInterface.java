@@ -10,35 +10,38 @@ import java.util.Optional;
 import java.util.Scanner;
 import java.util.List;
 
-public class ConsoleInteface {
+public class ConsoleInterface {
     private static final Scanner SCANNER = new Scanner(System.in);
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleInteface.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleInterface.class);
     private final UserDAO userDAO;
 
-    public ConsoleInteface(UserDAO userDAO) {
+    public ConsoleInterface(UserDAO userDAO) {
         this.userDAO = userDAO;
     }
 
     public void run() {
         while (true) {
-            printMenu();
+            showMenu();
             String choice = SCANNER.nextLine().trim();
             switch (choice) {
-                case "1" -> saveUserConsoleInterface();
-                case "2" -> updateUserConsoleInterface();
-                case "3" -> findByIdConsoleInterface();
-                case "4" -> findAllConsoleInterface();
-                case "5" -> removeUserConsoleInterface();
+                case "1" -> handleSaveUser();
+                case "2" -> handleUpdateUser();
+                case "3" -> handleFindById();
+                case "4" -> handleFindAll();
+                case "5" -> handleRemoveUser();
                 case "6" -> {
                     return;
                 }
-                default -> System.out.println("Неверный пункт меню.");
+                default -> {
+                    LOGGER.debug("Неверный пункт меню: '{}'", choice);
+                    System.out.println("Неверный пункт меню.");
+                }
             }
         }
     }
 
-    private void printMenu() {
-        System.out.println("Выберете пункт из меню для продолжения работы: ");
+    private void showMenu() {
+        System.out.println("Выберите пункт из меню для продолжения работы: ");
         System.out.println("""
                     1. Добавить пользователя.
                     2. Изменить данные о пользователе.
@@ -49,7 +52,7 @@ public class ConsoleInteface {
                     """);
     }
 
-    private void saveUserConsoleInterface() {
+    private void handleSaveUser() {
         System.out.println("Введите данные о пользователе.");
 
         System.out.print("Имя пользователя: ");
@@ -67,32 +70,50 @@ public class ConsoleInteface {
             return;
         }
 
-        int age;
+        Optional<Integer> ageOpt = parseAndValidateAge(ageString);
+        if (ageOpt.isEmpty()) {
+            return;
+        }
+        int age = ageOpt.get();
+
         try {
-            age = Integer.parseInt(ageString);
             User user = new User(name, email, age);
             User userSave = userDAO.saveUser(user);
-            LOGGER.info("Создан пользователь: user={}", userSave);
+            LOGGER.info("Создан пользователь: {}", userSave);
             System.out.println("Пользователь успешно добавлен: " + userSave);
-        } catch (NumberFormatException ex) {
-            LOGGER.warn("Некорректный возраст при сохранении: {}", ageString);
-            System.out.println("Некорректное значение возраста. Возврат в главное меню.");
         } catch (RuntimeException ex) {
             LOGGER.error("Ошибка при сохранении пользователя.", ex);
             System.out.println("Не удалось добавить пользователя: " + ex.getMessage());
         }
     }
 
-    private void updateUserConsoleInterface() {
+    private void handleUpdateUser() {
         System.out.println("Введите данные для изменения. Если изменения вносить не нужно, то оставьте поле пустым.");
 
         System.out.print("Id пользователя, информацию о котором необходимо изменить: ");
         String idString = SCANNER.nextLine().trim();
 
-        long id = getParseLong(idString);
-        if (id == -1) {
+        Optional<Long> idOpt = parseId(idString);
+        if (idOpt.isEmpty()) {
             return;
         }
+        long id = idOpt.get();
+
+        Optional<User> existing;
+        try {
+            existing = userDAO.findById(id);
+        } catch (RuntimeException ex) {
+            LOGGER.error("Ошибка при поиске пользователя id = {} перед обновлением.", id, ex);
+            System.out.println("Не удалось получить данные о пользователе: " + ex.getMessage());
+            return;
+        }
+
+        if (existing.isEmpty()) {
+            printUserNotFound(id);
+            return;
+        }
+
+        User current = existing.get();
 
         System.out.print("Новое имя пользователя: ");
         String name = SCANNER.nextLine().trim();
@@ -103,63 +124,66 @@ public class ConsoleInteface {
         System.out.print("Новый возраст пользователя: ");
         String ageString = SCANNER.nextLine().trim();
 
-        try {
-            Optional<User> existing = userDAO.findById(id);
-            if (existing.isEmpty()) {
-                LOGGER.warn("Попытка найти пользователя с несуществующим id. id={}", id);
-                System.out.println("Пользователь с id = " + id + " не найден.");
+        int newAge;
+        if (ageString.isBlank()) {
+            newAge = current.getAge();
+        } else {
+            Optional<Integer> ageOpt = parseAndValidateAge(ageString);
+            if (ageOpt.isEmpty()) {
                 return;
             }
-            User current = existing.get();
+            newAge = ageOpt.get();
+        }
 
-            String newName = name.isBlank() ? current.getName() : name;
-            String newEmail = email.isBlank() ? current.getEmail() : email;
-            int newAge = ageString.isBlank() ? current.getAge() : Integer.parseInt(ageString);
+        String newName = name.isBlank() ? current.getName() : name;
+        String newEmail = email.isBlank() ? current.getEmail() : email;
 
-            User updateUser = new User(newName, newEmail, newAge);
+        User updateUser = new User(newName, newEmail, newAge);
+
+        try {
             Optional<User> updated = userDAO.updateUser(id, updateUser);
             if (updated.isEmpty()) {
-                LOGGER.warn("Попытка найти пользователя с несуществующим id. id={}", id);
-                System.out.println("Пользователь с id = " + id + " не найден.");
+                printUserNotFound(id);
                 return;
             }
-            LOGGER.info("Успешное изменение информации о пользователе. user={}", updated.get());
+            LOGGER.info("Обновлен пользователь: id = {}.", id);
             System.out.println("Информация о пользователе успешно изменена: " + updated.get());
-        } catch (NumberFormatException ex) {
-            LOGGER.warn("Попытка изменения данных о возрасте неуспешна, некорректное значение поля age.");
-            System.out.println("Некорректное значение возраста. Возврат в главное меню.");
         } catch (RuntimeException ex) {
             LOGGER.error("Ошибка при попытке изменить данные о пользователе.", ex);
             System.out.println("Не удалось изменить информацию о пользователе: " + ex.getMessage());
         }
     }
 
-    private void findByIdConsoleInterface() {
+    private void handleFindById() {
         System.out.print("Введите id пользователя, которого хотите найти: ");
         String idString = SCANNER.nextLine().trim();
 
-        long id = getParseLong(idString);
-        if (id == -1) {
+        Optional<Long> idOpt = parseId(idString);
+        if (idOpt.isEmpty()) {
             return;
         }
+        long id = idOpt.get();
 
         try {
-            Optional<User> user = userDAO.findById(id);
-            if (user.isEmpty()) {
-                LOGGER.warn("Попытка найти пользователя с несуществующим id. id={}", id);
-                System.out.println("Пользователь с id = " + id + " не найден.");
+            Optional<User> userOpt = userDAO.findById(id);
+            if (userOpt.isEmpty()) {
+                printUserNotFound(id);
                 return;
             }
-            System.out.println("Найден пользователь: " + user.get());
+            User user = userOpt.get();
+            LOGGER.info("Найден пользователь: {}", user);
+            System.out.println("Найден пользователь: " + user);
         } catch (RuntimeException ex) {
+            LOGGER.error("Ошибка при поиске пользователя.", ex);
             System.out.println("Не удалось найти пользователя. " + ex.getMessage());
         }
     }
 
-    private void findAllConsoleInterface() {
+    private void handleFindAll() {
         try {
             List<User> userList = userDAO.findAll();
             if (userList.isEmpty()) {
+                LOGGER.warn("Список пользователей пуст.");
                 System.out.println("Список пользователей пуст.");
                 return;
             }
@@ -168,38 +192,67 @@ public class ConsoleInteface {
             for (User user : userList) {
                 System.out.println(user);
             }
+            LOGGER.info("Список пользователей выведен успешно.");
         } catch (RuntimeException ex) {
-            System.out.println("Не удалось получить список пользователей: " + ex.getMessage());
+            LOGGER.error("Ошибка при получении списка пользователей.", ex);
+            System.out.println("Не удалось получить список пользователей. Ошибка: " + ex.getMessage());
         }
     }
 
-    private void removeUserConsoleInterface() {
+    private void handleRemoveUser() {
         System.out.print("Введите id пользователя, которого хотите удалить: ");
         String idString = SCANNER.nextLine().trim();
 
-        long id = getParseLong(idString);
-        if (id == -1) {
+        Optional<Long> idOpt = parseId(idString);
+        if (idOpt.isEmpty()) {
             return;
         }
+        long id = idOpt.get();
 
         try {
             if (userDAO.deleteUser(id)) {
+                LOGGER.info("Успешное удаление пользователя.");
                 System.out.println("Пользователь успешно удален.");
             } else {
-                System.out.println("Пользователь с id = " + id + " не найден.");
+                printUserNotFound(id);
             }
         } catch (RuntimeException ex) {
+            LOGGER.error("Ошибка при удалении пользователя.", ex);
             System.out.println("Не удалось удалить пользователя: " + ex.getMessage());
         }
     }
 
-    private long getParseLong(String idString) {
+    private Optional<Long> parseId(String idString) {
         try {
-            return Long.parseLong(idString);
+            return Optional.of(Long.parseLong(idString));
         } catch (NumberFormatException ex) {
-            LOGGER.warn("Введено некорректное значение id={}.", idString);
+            LOGGER.warn("Введено некорректное значение id = {}.", idString);
             System.out.println("Некорректное значение id. Возврат в главное меню.");
-            return -1;
+            return Optional.empty();
         }
+    }
+
+    private Optional<Integer> parseAndValidateAge(String ageString) {
+        int age;
+        try {
+            age = Integer.parseInt(ageString);
+        } catch (NumberFormatException ex) {
+            LOGGER.warn("Некорректный возраст: {}", ageString);
+            System.out.println("Возраст должен быть целым числом. Возврат в главное меню.");
+            return Optional.empty();
+        }
+
+        if (age <= 0 || age > 120) {
+            LOGGER.warn("Возраст вне допустимого диапазона: {}", age);
+            System.out.println("Возраст должен быть от 1 до 120. Возврат в главное меню.");
+            return Optional.empty();
+        }
+
+        return Optional.of(age);
+    }
+
+    private void printUserNotFound(long id) {
+        LOGGER.warn("Пользователь с id = {} не найден.", id);
+        System.out.println("Пользователь с id = " + id + " не найден.");
     }
 }
