@@ -8,11 +8,10 @@ public class MainApp {
     public static void main(String[] args) {
         System.out.println("Консольное приложение для работы с пользователями.");
         try {
-            ConsoleInterface consoleInteface = new ConsoleInterface(new UserService());
-            consoleInteface.run();
+            ConsoleInterface consoleInterface = new ConsoleInterface(new UserService());
+            consoleInterface.run();
         } finally {
             HibernateSessionFactoryUtil.shutdown();
         }
-
     }
 }
