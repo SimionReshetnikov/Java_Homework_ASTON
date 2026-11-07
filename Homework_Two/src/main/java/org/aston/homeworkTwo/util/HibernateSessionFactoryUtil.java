@@ -15,10 +15,10 @@ public class HibernateSessionFactoryUtil {
 
     private HibernateSessionFactoryUtil() {}
 
-    public static SessionFactory getSessionFactory() {
+    public static SessionFactory getSessionFactory(String configName) {
         if (sessionFactory == null) {
             try {
-                Configuration configuration = new Configuration().configure("hibernate.cfg.xml");
+                Configuration configuration = new Configuration().configure(configName);
                 configuration.addAnnotatedClass(User.class);
                 StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder()
                         .applySettings(configuration.getProperties());
@@ -29,6 +29,10 @@ public class HibernateSessionFactoryUtil {
             }
         }
         return sessionFactory;
+    }
+
+    public static SessionFactory getSessionFactory() {
+        return getSessionFactory("hibernate.cfg.xml");
     }
 
     public static void shutdown() {

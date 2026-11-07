@@ -11,18 +11,24 @@ import java.util.Scanner;
 import java.util.List;
 
 public class ConsoleInterface {
-    private static final Scanner SCANNER = new Scanner(System.in);
+    private final Scanner scanner;
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleInterface.class);
     private final UserDAO userDAO;
 
     public ConsoleInterface(UserDAO userDAO) {
         this.userDAO = userDAO;
+        this.scanner = new Scanner(System.in);
+    }
+
+    private ConsoleInterface(UserDAO userDAO, Scanner scanner) {
+        this.userDAO = userDAO;
+        this.scanner = scanner;
     }
 
     public void run() {
         while (true) {
             showMenu();
-            String choice = SCANNER.nextLine().trim();
+            String choice = scanner.nextLine().trim();
             switch (choice) {
                 case "1" -> handleSaveUser();
                 case "2" -> handleUpdateUser();
@@ -56,13 +62,13 @@ public class ConsoleInterface {
         System.out.println("Введите данные о пользователе.");
 
         System.out.print("Имя пользователя: ");
-        String name = SCANNER.nextLine().trim();
+        String name = scanner.nextLine().trim();
 
         System.out.print("Email пользователя: ");
-        String email = SCANNER.nextLine().trim();
+        String email = scanner.nextLine().trim();
 
         System.out.print("Возраст пользователя: ");
-        String ageString = SCANNER.nextLine().trim();
+        String ageString = scanner.nextLine().trim();
 
         if (name.isBlank() || email.isBlank()) {
             LOGGER.warn("Попытка сохранить пользователя с пустым именем или email.");
@@ -91,7 +97,7 @@ public class ConsoleInterface {
         System.out.println("Введите данные для изменения. Если изменения вносить не нужно, то оставьте поле пустым.");
 
         System.out.print("Id пользователя, информацию о котором необходимо изменить: ");
-        String idString = SCANNER.nextLine().trim();
+        String idString = scanner.nextLine().trim();
 
         Optional<Long> idOpt = parseId(idString);
         if (idOpt.isEmpty()) {
@@ -116,13 +122,13 @@ public class ConsoleInterface {
         User current = existing.get();
 
         System.out.print("Новое имя пользователя: ");
-        String name = SCANNER.nextLine().trim();
+        String name = scanner.nextLine().trim();
 
         System.out.print("Новый email пользователя: ");
-        String email = SCANNER.nextLine().trim();
+        String email = scanner.nextLine().trim();
 
         System.out.print("Новый возраст пользователя: ");
-        String ageString = SCANNER.nextLine().trim();
+        String ageString = scanner.nextLine().trim();
 
         int newAge;
         if (ageString.isBlank()) {
@@ -156,7 +162,7 @@ public class ConsoleInterface {
 
     private void handleFindById() {
         System.out.print("Введите id пользователя, которого хотите найти: ");
-        String idString = SCANNER.nextLine().trim();
+        String idString = scanner.nextLine().trim();
 
         Optional<Long> idOpt = parseId(idString);
         if (idOpt.isEmpty()) {
@@ -201,7 +207,7 @@ public class ConsoleInterface {
 
     private void handleRemoveUser() {
         System.out.print("Введите id пользователя, которого хотите удалить: ");
-        String idString = SCANNER.nextLine().trim();
+        String idString = scanner.nextLine().trim();
 
         Optional<Long> idOpt = parseId(idString);
         if (idOpt.isEmpty()) {

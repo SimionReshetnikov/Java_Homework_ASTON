@@ -4,6 +4,7 @@ import org.aston.homeworkTwo.dao.UserDAO;
 import org.aston.homeworkTwo.model.User;
 import org.aston.homeworkTwo.util.HibernateSessionFactoryUtil;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
@@ -14,10 +15,19 @@ import java.util.Optional;
 
 public class UserService implements UserDAO {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+    private final SessionFactory sessionFactory;
+
+    public UserService() {
+        this.sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+    }
+
+    public UserService(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
 
     @Override
     public Optional<User> findById(long id) {
-        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             User user = session.get(User.class, id);
             return Optional.ofNullable(user);
         } catch (Exception ex) {
@@ -28,7 +38,7 @@ public class UserService implements UserDAO {
 
     @Override
     public List<User> findAll() {
-        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             return session.createQuery("FROM User", User.class).list();
         } catch (Exception ex) {
             LOGGER.error("Ошибка при получении списка пользователей", ex);
@@ -39,7 +49,7 @@ public class UserService implements UserDAO {
     @Override
     public User saveUser(User user) {
         Transaction transaction = null;
-        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             session.persist(user);
             transaction.commit();
@@ -58,7 +68,7 @@ public class UserService implements UserDAO {
     @Override
     public Optional<User> updateUser(long id, User updateUser) {
         Transaction transaction = null;
-        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             User user = session.get(User.class, id);
             if (user == null) {
@@ -84,7 +94,7 @@ public class UserService implements UserDAO {
     @Override
     public boolean deleteUser(long id) {
         Transaction transaction = null;
-        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             User removeUser = session.get(User.class, id);
             if (removeUser == null) {
