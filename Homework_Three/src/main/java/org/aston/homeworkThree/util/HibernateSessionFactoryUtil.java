@@ -1,8 +1,8 @@
-package org.aston.util;
+package org.aston.homeworkThree.util;
 
-import org.aston.model.CategoryContact;
-import org.aston.model.Contact;
-import org.aston.model.User;
+import org.aston.homeworkThree.model.CategoryContact;
+import org.aston.homeworkThree.model.Contact;
+import org.aston.homeworkThree.model.User;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;

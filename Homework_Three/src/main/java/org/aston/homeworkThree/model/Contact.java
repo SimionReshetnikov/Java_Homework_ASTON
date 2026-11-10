@@ -1,4 +1,4 @@
-package org.aston.model;
+package org.aston.homeworkThree.model;
 
 import jakarta.persistence.*;
 
