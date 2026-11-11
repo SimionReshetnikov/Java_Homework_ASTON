@@ -10,19 +10,21 @@ import org.hibernate.cfg.Configuration;
 public class HibernateSessionFactoryUtil implements AutoCloseable {
     private static volatile SessionFactory sessionFactory;
 
-    public static SessionFactory initSessionFactory(String nameConfig) {
+    public static SessionFactory initSessionFactory() {
         if (sessionFactory == null) {
             synchronized (HibernateSessionFactoryUtil.class) {
-                try {
-                    Configuration configuration = new Configuration().configure(nameConfig);
-                    configuration.addAnnotatedClass(User.class);
-                    configuration.addAnnotatedClass(Contact.class);
-                    configuration.addAnnotatedClass(CategoryContact.class);
-                    StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder()
-                            .applySettings(configuration.getProperties());
-                    sessionFactory = configuration.buildSessionFactory(builder.build());
-                } catch (Exception ex) {
-                    throw new RuntimeException("Не удалось создать SessionFactory.", ex);
+                if (sessionFactory == null) {
+                    try {
+                        Configuration configuration = new Configuration().configure("hibernate.cfg.xml");
+                        configuration.addAnnotatedClass(User.class);
+                        configuration.addAnnotatedClass(Contact.class);
+                        configuration.addAnnotatedClass(CategoryContact.class);
+                        StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder()
+                                .applySettings(configuration.getProperties());
+                        sessionFactory = configuration.buildSessionFactory(builder.build());
+                    } catch (Exception ex) {
+                        throw new RuntimeException("Не удалось создать SessionFactory.", ex);
+                    }
                 }
             }
         }
@@ -30,10 +32,7 @@ public class HibernateSessionFactoryUtil implements AutoCloseable {
     }
 
     public static SessionFactory getSessionFactory() {
-        if (sessionFactory == null) {
-            throw new IllegalStateException("SessionFactory не создана. Сначала нужно вызвать метод initSessionFactory.");
-        }
-        return sessionFactory;
+        return initSessionFactory();
     }
 
 
