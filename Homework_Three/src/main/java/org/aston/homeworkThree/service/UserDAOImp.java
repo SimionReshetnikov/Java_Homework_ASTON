@@ -23,10 +23,14 @@ public class UserDAOImp implements UserDAO {
     }
 
     @Override
-    public void createUser(User user) {
+    public void saveUser(User user) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             try {
+                if (user == null) {
+                    transaction.rollback();
+                    return;
+                }
                 session.persist(user);
                 transaction.commit();
             } catch (Exception ex) {
@@ -42,7 +46,7 @@ public class UserDAOImp implements UserDAO {
             Transaction transaction = session.beginTransaction();
             try {
                 User updateUser = session.get(User.class, id);
-                if (updateUser == null) {
+                if (updateUser == null || user == null) {
                     transaction.rollback();
                     return Optional.empty();
                 }

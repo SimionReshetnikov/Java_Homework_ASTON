@@ -20,7 +20,7 @@ public class Contact {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_contact_id")
     private CategoryContact categoryContact;
 
