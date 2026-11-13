@@ -4,6 +4,8 @@ package org.aston.homeworkThree;
 import org.aston.homeworkThree.model.CategoryContact;
 import org.aston.homeworkThree.model.Contact;
 import org.aston.homeworkThree.model.User;
+import org.aston.homeworkThree.service.CategoryContactDAOImp;
+import org.aston.homeworkThree.service.ContactDAOImp;
 import org.aston.homeworkThree.service.UserDAOImp;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -28,7 +30,9 @@ public class UserDAOImpTest {
             .withPassword("test_password");
 
     private static SessionFactory sessionFactory;
+    private ContactDAOImp contactDAOImp;
     private UserDAOImp userDAOImp;
+    private CategoryContactDAOImp categoryContactDAOImp;
 
     private static Configuration getConfiguration() {
         Configuration configuration = new Configuration();
@@ -61,22 +65,21 @@ public class UserDAOImpTest {
     @BeforeEach
     void setUp() {
         userDAOImp = new UserDAOImp(sessionFactory);
+        contactDAOImp = new ContactDAOImp(sessionFactory);
+        categoryContactDAOImp = new CategoryContactDAOImp(sessionFactory);
+
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            session.createNativeQuery("TRUNCATE TABLE users, contact, category_contact RESTART IDENTITY CASCADE")
+                    .executeUpdate();
+            session.getTransaction().commit();
+        }
     }
 
     @AfterAll
     static void closeSessionFactory() {
         if (sessionFactory != null) {
             sessionFactory.close();
-        }
-    }
-
-    @AfterEach
-    void clearData() {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            session.createNativeQuery("TRUNCATE TABLE users, contact, category_contact RESTART IDENTITY CASCADE")
-                    .executeUpdate();
-            session.getTransaction().commit();
         }
     }
 
@@ -98,7 +101,8 @@ public class UserDAOImpTest {
         User updateUser = new User("Michael", "JacksonFive");
 
         userDAOImp.saveUser(user);
-        Optional<User> updated = userDAOImp.updateUser(user.getId(), updateUser);
+        userDAOImp.updateUser(user.getId(), updateUser);
+        Optional<User> updated = userDAOImp.findById(user.getId());
 
         assertTrue(updated.isPresent());
         assertEquals(updateUser.getFirstName(), updated.get().getFirstName());
@@ -121,6 +125,7 @@ public class UserDAOImpTest {
     void testUpdateWithNullValue() {
         User user = new User("Michael", "Jackson");
 
+        userDAOImp.saveUser(user);
         Optional<User> updated = userDAOImp.updateUser(user.getId(), null);
 
         assertTrue(updated.isEmpty());
@@ -182,12 +187,28 @@ public class UserDAOImpTest {
     }
 
     @Test
-    void testRemoveUserByNonDetailsId() {
+    void testRemoveUserByNonExistingId() {
         User user = new User("Michael", "Jackson");
         long id = 999999L;
 
         userDAOImp.saveUser(user);
 
         assertFalse(userDAOImp.removeUser(id));
+    }
+
+    @Test
+    void testRemoveUserWithContacts() {
+        User user = new User("Michael", "Jackson");
+        CategoryContact categoryContact = new CategoryContact("Работа");
+        Contact contact = new Contact("John", "+1(234)-567-89-01");
+
+        userDAOImp.saveUser(user);
+        categoryContactDAOImp.saveCategory(categoryContact);
+        contactDAOImp.saveContact(contact, user.getId(), categoryContact.getId());
+        boolean isDeleted = userDAOImp.removeUser(user.getId());
+
+        assertTrue(isDeleted);
+        assertTrue(userDAOImp.findById(user.getId()).isEmpty());
+        assertTrue(contactDAOImp.findById(contact.getId()).isEmpty());
     }
 }

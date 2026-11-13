@@ -4,6 +4,7 @@ import org.aston.homeworkThree.dao.ContactDAO;
 import org.aston.homeworkThree.model.CategoryContact;
 import org.aston.homeworkThree.model.Contact;
 import org.aston.homeworkThree.model.User;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -24,7 +25,6 @@ public class ContactDAOImp implements ContactDAO {
             Transaction transaction = session.beginTransaction();
             try {
                 if (contact == null) {
-                    transaction.rollback();
                     throw new IllegalArgumentException("Contact не может быть null.");
                 }
 
@@ -37,14 +37,18 @@ public class ContactDAOImp implements ContactDAO {
                 CategoryContact categoryContact = session.get(CategoryContact.class, categoryId);
                 if (categoryContact == null) {
                     transaction.rollback();
-                    throw new RuntimeException("Категория с id = " + categoryId + " не найдена.");
+                    throw new IllegalArgumentException("Категория с id = " + categoryId + " не найдена.");
                 }
 
                 contact.setUser(user);
                 contact.setCategoryContact(categoryContact);
                 session.persist(contact);
                 transaction.commit();
-            } catch (Exception ex) {
+            } catch (IllegalArgumentException ex) {
+                rollbackIfActive(transaction);
+                throw ex;
+            }
+            catch (Exception ex) {
                 rollbackIfActive(transaction);
                 throw new RuntimeException("Ошибка добавления контакта в БД: ", ex);
             }
@@ -55,6 +59,10 @@ public class ContactDAOImp implements ContactDAO {
     public Optional<Contact> findById(long id) {
         try (Session session = sessionFactory.openSession()) {
             Contact contact = session.get(Contact.class, id);
+            if (contact != null) {
+                Hibernate.initialize(contact.getUser());
+                Hibernate.initialize(contact.getCategoryContact());
+            }
             return Optional.ofNullable(contact);
         } catch (Exception ex) {
             throw new RuntimeException("Ошибка при поиске пользователя по id = " + id + ": ", ex);
@@ -74,7 +82,7 @@ public class ContactDAOImp implements ContactDAO {
     }
 
     @Override
-    public Optional<Contact> updateContact(long id, Contact contact) {
+    public Optional<Contact> updateContact(long id, long categoryId, Contact contact) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             try {
@@ -83,12 +91,24 @@ public class ContactDAOImp implements ContactDAO {
                     transaction.rollback();
                     return Optional.empty();
                 }
+
+                CategoryContact category = session.get(CategoryContact.class, categoryId);
+                if (category == null) {
+                    transaction.rollback();
+                    throw new IllegalArgumentException("Категория с id = " + categoryId + " не найдена.");
+                }
+
                 currentContact.setContactName(contact.getContactName());
                 currentContact.setNumber(contact.getNumber());
-                currentContact.setCategoryContact(contact.getCategoryContact());
+                currentContact.setCategoryContact(category);
+
                 transaction.commit();
                 return Optional.of(currentContact);
-            } catch (Exception ex) {
+            } catch (IllegalArgumentException ex) {
+                rollbackIfActive(transaction);
+                throw ex;
+            }
+            catch (Exception ex) {
                 rollbackIfActive(transaction);
                 throw new RuntimeException("Ошибка при обновлении данных контакта: ", ex);
             }

@@ -13,7 +13,7 @@ public class Contact {
     @Column(name = "contact_name", nullable = false, length = 50)
     private String contactName;
 
-    @Column(name = "number", nullable = false, unique = true, length = 15)
+    @Column(name = "number", nullable = false, unique = true, length = 50)
     private String number;
 
     @ManyToOne

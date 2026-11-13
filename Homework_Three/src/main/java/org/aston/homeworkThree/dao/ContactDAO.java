@@ -9,6 +9,6 @@ public interface ContactDAO {
     void saveContact(Contact contact, long userId, long categoryId);
     Optional<Contact> findById(long id);
     List<Contact> findAllContactByUserId(long userId);
-    Optional<Contact> updateContact(long id, Contact contact);
+    Optional<Contact> updateContact(long id, long categoryId, Contact contact);
     boolean deleteContact(long id);
 }

@@ -83,6 +83,17 @@ public class CategoryContactDAOImp implements CategoryContactDAO {
                     transaction.rollback();
                     return false;
                 }
+
+                Long count = session.createQuery(
+                        "SELECT COUNT(c) FROM Contact c WHERE c.categoryContact.id = :categoryId", Long.class)
+                        .setParameter("categoryId", id)
+                        .getSingleResult();
+
+                if (count > 0) {
+                    transaction.rollback();
+                    throw new IllegalStateException("Невозможно удалить категорию. К ней привязано " + count + " контактов.");
+                }
+
                 session.remove(categoryContact);
                 transaction.commit();
                 return true;
