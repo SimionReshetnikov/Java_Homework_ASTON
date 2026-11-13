@@ -1,9 +1,7 @@
 package org.aston.homeworkThree.service;
 
 import org.aston.homeworkThree.dao.UserDAO;
-import org.aston.homeworkThree.model.Contact;
 import org.aston.homeworkThree.model.User;
-import org.aston.homeworkThree.util.HibernateSessionFactoryUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;

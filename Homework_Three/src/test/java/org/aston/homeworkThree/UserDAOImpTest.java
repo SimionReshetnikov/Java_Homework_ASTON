@@ -172,17 +172,6 @@ public class UserDAOImpTest {
         assertEquals(size, allUsers.size());
     }
 
-//    @Test
-//    void testFindUserContactsDetailsById() {
-//
-//
-//    }
-//
-//    @Test
-//    void testFindUserContactsDetailsByNonExistingId() {
-//
-//    }
-
     @Test
     void testRemoveUserById() {
         User user = new User("Michael", "Jackson");

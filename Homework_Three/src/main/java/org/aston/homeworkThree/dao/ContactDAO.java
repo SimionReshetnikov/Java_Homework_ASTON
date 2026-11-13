@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ContactDAO {
-    void saveContact(Contact contact);
+    void saveContact(Contact contact, long userId, long categoryId);
     Optional<Contact> findById(long id);
     List<Contact> findAllContactByUserId(long userId);
     Optional<Contact> updateContact(long id, Contact contact);

@@ -1,7 +1,9 @@
 package org.aston.homeworkThree.service;
 
 import org.aston.homeworkThree.dao.ContactDAO;
+import org.aston.homeworkThree.model.CategoryContact;
 import org.aston.homeworkThree.model.Contact;
+import org.aston.homeworkThree.model.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -17,7 +19,7 @@ public class ContactDAOImp implements ContactDAO {
     }
 
     @Override
-    public void saveContact(Contact contact) {
+    public void saveContact(Contact contact, long userId, long categoryId) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             try {
@@ -25,6 +27,21 @@ public class ContactDAOImp implements ContactDAO {
                     transaction.rollback();
                     throw new IllegalArgumentException("Contact не может быть null.");
                 }
+
+                User user = session.get(User.class, userId);
+                if (user == null) {
+                    transaction.rollback();
+                    throw new IllegalArgumentException("Пользователь с id = " + userId + " не найден.");
+                }
+
+                CategoryContact categoryContact = session.get(CategoryContact.class, categoryId);
+                if (categoryContact == null) {
+                    transaction.rollback();
+                    throw new RuntimeException("Категория с id = " + categoryId + " не найдена.");
+                }
+
+                contact.setUser(user);
+                contact.setCategoryContact(categoryContact);
                 session.persist(contact);
                 transaction.commit();
             } catch (Exception ex) {
