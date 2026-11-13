@@ -11,6 +11,5 @@ public interface UserDAO {
     Optional<User> updateUser(long id, User user);
     Optional<User> findById(long id);
     List<User> findAll();
-    List<Contact> findAllContactUser(long id);
     boolean removeUser(long id);
 }

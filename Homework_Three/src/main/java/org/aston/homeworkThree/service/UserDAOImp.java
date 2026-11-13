@@ -14,10 +14,6 @@ import java.util.Optional;
 public class UserDAOImp implements UserDAO {
     private final SessionFactory sessionFactory;
 
-    public UserDAOImp() {
-        this.sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
-    }
-
     public UserDAOImp(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
@@ -56,7 +52,7 @@ public class UserDAOImp implements UserDAO {
                 return Optional.of(updateUser);
             } catch (Exception ex) {
                 rollbackIfActive(transaction);
-                throw new RuntimeException("Ошибка при обновлении данных пользователя в БД.", ex);
+                throw new RuntimeException("Ошибка при обновлении данных пользователя в БД: ", ex);
             }
         }
     }
@@ -67,7 +63,7 @@ public class UserDAOImp implements UserDAO {
             User user = session.get(User.class, id);
             return Optional.ofNullable(user);
         } catch (Exception ex) {
-            throw new RuntimeException("Ошибка при поиске пользователя.", ex);
+            throw new RuntimeException("Ошибка при поиске пользователя: ", ex);
         }
     }
 
@@ -81,23 +77,7 @@ public class UserDAOImp implements UserDAO {
                 return users;
             } catch (Exception ex) {
                 rollbackIfActive(transaction);
-                throw new RuntimeException("Ошибка при формировании списка всех пользователей.", ex);
-            }
-        }
-    }
-
-    @Override
-    public List<Contact> findAllContactUser(long id) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            try {
-                User user = session.get(User.class, id);
-                List<Contact> contacts = user.getContactList();
-                transaction.commit();
-                return contacts;
-            } catch (Exception ex) {
-                rollbackIfActive(transaction);
-                throw new RuntimeException("Ошибка при формировании всех контактов пользователя.", ex);
+                throw new RuntimeException("Ошибка при формировании списка всех пользователей: ", ex);
             }
         }
     }
@@ -117,7 +97,7 @@ public class UserDAOImp implements UserDAO {
                 return true;
             } catch (Exception ex) {
                 rollbackIfActive(transaction);
-                throw new RuntimeException("Ошибка при удалении пользователя.", ex);
+                throw new RuntimeException("Ошибка при удалении пользователя: ", ex);
             }
         }
     }
