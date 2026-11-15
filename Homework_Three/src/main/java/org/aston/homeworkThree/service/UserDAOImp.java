@@ -21,10 +21,6 @@ public class UserDAOImp implements UserDAO {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             try {
-                if (user == null) {
-                    transaction.rollback();
-                    return;
-                }
                 session.persist(user);
                 transaction.commit();
             } catch (Exception ex) {
