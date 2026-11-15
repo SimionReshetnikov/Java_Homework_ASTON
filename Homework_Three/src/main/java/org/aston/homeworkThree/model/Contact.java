@@ -66,4 +66,9 @@ public class Contact {
     public void setCategoryContact(CategoryContact categoryContact) {
         this.categoryContact = categoryContact;
     }
+
+    @Override
+    public String toString() {
+        return "Contact{id=" + id + ", name='" + contactName + "', number='" + number + "'}";
+    }
 }

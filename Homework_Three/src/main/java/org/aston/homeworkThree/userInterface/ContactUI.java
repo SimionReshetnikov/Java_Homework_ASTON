@@ -11,15 +11,11 @@ import java.util.Optional;
 import java.util.Scanner;
 
 public class ContactUI {
-    private final UserDAO userDAO;
     private final ContactDAO contactDAO;
-    private final CategoryContactDAO categoryContactDAO;
     private final Scanner scanner;
 
-    public ContactUI(UserDAO userDAO, ContactDAO contactDAO, CategoryContactDAO categoryContactDAO, Scanner scanner) {
-        this.userDAO = userDAO;
+    public ContactUI(ContactDAO contactDAO, Scanner scanner) {
         this.contactDAO = contactDAO;
-        this.categoryContactDAO = categoryContactDAO;
         this.scanner = scanner;
     }
 
@@ -96,9 +92,9 @@ public class ContactUI {
         Contact updateContact = new Contact(newContactName, newPhoneNumber);
 
         System.out.println("Введите id категории, в которую хотите перенести контакт: ");
-        String categotyIdString = scanner.nextLine().trim();
-        Optional<Long> categoryIdOpt = categotyIdString.isBlank() ?
-                Optional.of(currentContactOpt.get().getCategoryContact().getId()) : parseId(categotyIdString);
+        String categoryIdString = scanner.nextLine().trim();
+        Optional<Long> categoryIdOpt = categoryIdString.isBlank() ?
+                Optional.of(currentContactOpt.get().getCategoryContact().getId()) : parseId(categoryIdString);
 
         if (categoryIdOpt.isEmpty()) {
             return;

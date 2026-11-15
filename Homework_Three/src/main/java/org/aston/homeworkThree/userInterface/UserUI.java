@@ -129,7 +129,7 @@ public class UserUI {
         }
     }
 
-    private void handleRemoveUser() {
+    protected void handleRemoveUser() {
         System.out.print("Введите id пользователя, которого хотите удалить: ");
         String idString = scanner.nextLine().trim();
 

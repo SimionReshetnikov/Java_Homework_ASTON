@@ -59,4 +59,9 @@ public class User {
     public List<Contact> getContactList() {
         return contactList;
     }
+
+    @Override
+    public String toString() {
+        return "User{id=" + id + ", firstName='" + firstName + "', lastName='" + lastName + "'}";
+    }
 }

@@ -29,6 +29,7 @@ public class CategoryContactUI {
         CategoryContact categoryContact = new CategoryContact(category);
         try {
             categoryContactDAO.saveCategory(categoryContact);
+            System.out.println("Категория контактов успешно добавлена.");
         } catch (RuntimeException ex) {
             System.out.println("Не удалось добавить категорию контактов: " + ex.getMessage());
         }
@@ -135,7 +136,7 @@ public class CategoryContactUI {
     }
 
     private void printContactNotFound(long id) {
-        System.out.println("Контакт с id = " + id + " не найден.");
+        System.out.println("Категория с id = " + id + " не найдена.");
     }
 
     private Optional<Long> parseId(String idString) {
