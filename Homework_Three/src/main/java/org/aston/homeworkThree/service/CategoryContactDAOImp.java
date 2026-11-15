@@ -27,6 +27,9 @@ public class CategoryContactDAOImp implements CategoryContactDAO {
                 }
                 session.persist(categoryContact);
                 transaction.commit();
+            } catch (IllegalArgumentException ex) {
+                rollbackIfActive(transaction);
+                throw ex;
             } catch (Exception ex) {
                 rollbackIfActive(transaction);
                 throw new RuntimeException("Ошибка при добавлении категории контакта: ", ex);
@@ -44,9 +47,25 @@ public class CategoryContactDAOImp implements CategoryContactDAO {
                     transaction.rollback();
                     return Optional.empty();
                 }
+
+                Long duplicateCount = session.createQuery(
+                                "SELECT COUNT(c) FROM CategoryContact c WHERE c.categoryName = :name AND c.id != :id", Long.class)
+                        .setParameter("name", categoryContact.getCategoryName())
+                        .setParameter("id", id)
+                        .getSingleResult();
+
+                if (duplicateCount > 0) {
+                    transaction.rollback();
+                    throw new IllegalStateException("Категория с именем "
+                            + categoryContact.getCategoryName() + " уже существует.");
+                }
+
                 currentContact.setCategoryName(categoryContact.getCategoryName());
                 transaction.commit();
                 return Optional.of(currentContact);
+            } catch (IllegalStateException ex) {
+                rollbackIfActive(transaction);
+                throw ex;
             } catch (Exception ex) {
                 rollbackIfActive(transaction);
                 throw new RuntimeException("Ошибка изменения данных категории контакта: ", ex);
@@ -85,7 +104,7 @@ public class CategoryContactDAOImp implements CategoryContactDAO {
                 }
 
                 Long count = session.createQuery(
-                        "SELECT COUNT(c) FROM Contact c WHERE c.categoryContact.id = :categoryId", Long.class)
+                                "SELECT COUNT(c) FROM Contact c WHERE c.categoryContact.id = :categoryId", Long.class)
                         .setParameter("categoryId", id)
                         .getSingleResult();
 
@@ -97,6 +116,9 @@ public class CategoryContactDAOImp implements CategoryContactDAO {
                 session.remove(categoryContact);
                 transaction.commit();
                 return true;
+            } catch (IllegalStateException ex) {
+                rollbackIfActive(transaction);
+                throw ex;
             } catch (Exception ex) {
                 rollbackIfActive(transaction);
                 throw new RuntimeException("Ошибка при удалении категории контактов: " + ex);
