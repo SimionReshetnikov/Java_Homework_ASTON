@@ -17,7 +17,7 @@ public class ContactUI {
         this.scanner = scanner;
     }
 
-    protected void handleSaveContact() {
+    public void handleSaveContact() {
         System.out.println("Введите данные о контакте: ");
 
         System.out.println("Введите имя контакта: ");
@@ -56,7 +56,7 @@ public class ContactUI {
         }
     }
 
-    protected void handleUpdateContact() {
+    public void handleUpdateContact() {
         System.out.println("Введите id контакта, которого хотите изменить: ");
         String contactId = scanner.nextLine().trim();
         Optional<Long> idOpt = parseId(contactId);
@@ -112,7 +112,7 @@ public class ContactUI {
         }
     }
 
-    protected void handleFindByIdContact() {
+    public void handleFindByIdContact() {
         System.out.println("Введите id контакта: ");
         String contactId = scanner.nextLine().trim();
         Optional<Long> idOpt = parseId(contactId);
@@ -134,7 +134,7 @@ public class ContactUI {
         }
     }
 
-    protected void handleFindAllContactByUserId() {
+    public void handleFindAllContactByUserId() {
         System.out.println("Введите id пользователя: ");
         String userId = scanner.nextLine().trim();
         Optional<Long> idOpt = parseId(userId);
@@ -160,7 +160,7 @@ public class ContactUI {
         }
     }
 
-    protected void handleDeleteContact() {
+    public void handleDeleteContact() {
         System.out.println("Введите id контакта: ");
         String contactId = scanner.nextLine().trim();
         Optional<Long> idOpt = parseId(contactId);

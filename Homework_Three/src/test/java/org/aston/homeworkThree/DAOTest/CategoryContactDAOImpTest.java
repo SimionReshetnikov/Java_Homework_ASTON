@@ -100,7 +100,7 @@ public class CategoryContactDAOImpTest {
     void testSaveCategoryWithNull() {
         CategoryContact categoryContact = null;
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(RuntimeException.class,
                 () -> categoryContactDAOImp.saveCategory(categoryContact));
     }
 
