@@ -21,15 +21,8 @@ public class CategoryContactDAOImp implements CategoryContactDAO {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             try {
-                if (categoryContact == null) {
-                    transaction.rollback();
-                    throw new IllegalArgumentException("CategoryContact не может быть null.");
-                }
                 session.persist(categoryContact);
                 transaction.commit();
-            } catch (IllegalArgumentException ex) {
-                rollbackIfActive(transaction);
-                throw ex;
             } catch (Exception ex) {
                 rollbackIfActive(transaction);
                 throw new RuntimeException("Ошибка при добавлении категории контакта: ", ex);
