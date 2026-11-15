@@ -17,7 +17,7 @@ public class CategoryContactUI {
         this.scanner = scanner;
     }
 
-    protected void handleSaveCategoryContact() {
+    public void handleSaveCategoryContact() {
         System.out.println("Введите название категории, которую хотите создать: ");
         String category = scanner.nextLine().trim();
 
@@ -35,7 +35,7 @@ public class CategoryContactUI {
         }
     }
 
-    protected void handleUpdateCategoryContact() {
+    public void handleUpdateCategoryContact() {
         System.out.println("Введите id категории, которую хотите изменить: ");
         Optional<Long> categoryIdOpt = parseId(scanner.nextLine().trim());
 
@@ -76,7 +76,7 @@ public class CategoryContactUI {
         }
     }
 
-    protected void handleFindByIdCategoryContact() {
+    public void handleFindByIdCategoryContact() {
         System.out.println("Введите id категории, которую хотите найти: ");
         Optional<Long> categoryIdOpt = parseId(scanner.nextLine().trim());
         if (categoryIdOpt.isEmpty()) {
@@ -96,7 +96,7 @@ public class CategoryContactUI {
         }
     }
 
-    protected void handleFindAllCategoryContact() {
+    public void handleFindAllCategoryContact() {
         try {
             List<CategoryContact> contactList = categoryContactDAO.findAll();
             if (contactList.isEmpty()) {
@@ -113,7 +113,7 @@ public class CategoryContactUI {
         }
     }
 
-    protected void handleRemoveCategoryContact() {
+    public void handleRemoveCategoryContact() {
         System.out.println("Предупреждение: удалить можно только категорию, к которой не привязаны контакты.");
         System.out.print("Введите id категории, которую хотите удалить: ");
         String idString = scanner.nextLine().trim();
