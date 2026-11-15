@@ -1,8 +1,6 @@
 package org.aston.homeworkThree.userInterface;
 
-import org.aston.homeworkThree.dao.CategoryContactDAO;
 import org.aston.homeworkThree.dao.ContactDAO;
-import org.aston.homeworkThree.dao.UserDAO;
 import org.aston.homeworkThree.model.Contact;
 
 import java.util.Comparator;

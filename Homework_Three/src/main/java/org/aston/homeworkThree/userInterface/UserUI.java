@@ -17,7 +17,7 @@ public class UserUI {
         this.scanner = scanner;
     }
 
-    protected void handleSaveUser() {
+    public void handleSaveUser() {
         System.out.println("Введите данные о пользователе.");
 
         System.out.println("Введите имя: ");
@@ -40,7 +40,7 @@ public class UserUI {
         }
     }
 
-    protected void handleUpdateUser() {
+    public void handleUpdateUser() {
         System.out.println("Введите id пользователя, данные которого хотите изменить: ");
 
         String userId = scanner.nextLine().trim();
@@ -89,7 +89,7 @@ public class UserUI {
         }
     }
 
-    protected void handleFindById() {
+    public void handleFindById() {
         System.out.print("Введите id пользователя, которого хотите найти: ");
         String idString = scanner.nextLine().trim();
 
@@ -112,7 +112,7 @@ public class UserUI {
         }
     }
 
-    protected void handleFindAll() {
+    public void handleFindAll() {
         try {
             List<User> userList = userDAO.findAll();
             if (userList.isEmpty()) {
@@ -129,7 +129,7 @@ public class UserUI {
         }
     }
 
-    protected void handleRemoveUser() {
+    public void handleRemoveUser() {
         System.out.print("Введите id пользователя, которого хотите удалить: ");
         String idString = scanner.nextLine().trim();
 

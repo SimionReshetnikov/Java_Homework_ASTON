@@ -1,4 +1,4 @@
-package org.aston.homeworkThree;
+package org.aston.homeworkThree.DAOTest;
 
 
 import org.aston.homeworkThree.model.CategoryContact;
