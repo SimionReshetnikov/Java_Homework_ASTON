@@ -1,6 +1,8 @@
 package org.example.HomeworkFour.service;
 
 import jakarta.transaction.Transactional;
+import org.example.HomeworkFour.DTO.request.UserRequestDto;
+import org.example.HomeworkFour.DTO.response.UserResponseDto;
 import org.example.HomeworkFour.model.User;
 import org.example.HomeworkFour.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +21,16 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public Optional<User> saveUser(User user) {
-        if (user == null) {
-            return Optional.empty();
-        }
-        return Optional.of(userRepository.save(user));
+    public UserResponseDto saveUser(UserRequestDto userRequestDTO) {
+        User saveUser = new User(userRequestDTO.getName(), userRequestDTO.getEmail(), userRequestDTO.getAge());
+        User saved = userRepository.save(saveUser);
+        return new UserResponseDto(
+                saved.getId(),
+                saved.getName(),
+                saved.getEmail(),
+                saved.getAge(),
+                saved.getCreatedAt()
+        );
     }
 
     @Transactional
@@ -34,8 +41,7 @@ public class UserService {
         }
 
         User currentUser = currentUserOpt.get();
-        currentUser.setFirstName(updateUser.getFirstName());
-        currentUser.setLastName(updateUser.getLastName());
+        currentUser.setName(updateUser.getName());
 
         return Optional.of(userRepository.save(currentUser));
     }
