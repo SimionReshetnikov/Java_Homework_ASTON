@@ -3,7 +3,6 @@ package org.example.HomeworkFour.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -15,20 +14,21 @@ public class User {
     @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
 
-    @Column(name = "last_name", nullable = false, length = 50)
-    private String lastName;
+    @Column(name = "age", nullable = false)
+    private int age;
+
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Contact> contactList;
-
     public User() {}
 
-    public User(String firstName, String lastName) {
+    public User(String firstName, String email, int age) {
         this.firstName = firstName;
-        this.lastName = lastName;
+        this.email = email;
+        this.age = age;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -36,7 +36,7 @@ public class User {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -48,24 +48,23 @@ public class User {
         this.firstName = firstName;
     }
 
-    public String getLastName() {
-        return lastName;
+    public int getAge() {
+        return age;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
-    }
-
-    public List<Contact> getContactList() {
-        return contactList;
-    }
-
-    @Override
-    public String toString() {
-        return "User{id=" + id + ", firstName='" + firstName + "', lastName='" + lastName + "'}";
     }
 }
