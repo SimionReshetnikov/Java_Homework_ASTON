@@ -1,4 +1,4 @@
-package org.example.HomeworkFour;
+package org.aston.homework_four;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

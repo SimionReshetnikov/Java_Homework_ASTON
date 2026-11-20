@@ -1,10 +1,10 @@
-package org.example.HomeworkFour.service;
+package org.aston.homework_four.service;
 
 import jakarta.transaction.Transactional;
-import org.example.HomeworkFour.DTO.request.UserRequestDto;
-import org.example.HomeworkFour.DTO.response.UserResponseDto;
-import org.example.HomeworkFour.model.User;
-import org.example.HomeworkFour.repository.UserRepository;
+import org.aston.homework_four.DTO.request.UserRequestDto;
+import org.aston.homework_four.DTO.response.UserResponseDto;
+import org.aston.homework_four.model.User;
+import org.aston.homework_four.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -77,6 +77,7 @@ public class UserService {
                 .toList();
     }
 
+    @Transactional
     public boolean deleteUser(long id) {
         if (userRepository.findById(id).isEmpty()) {
             return false;

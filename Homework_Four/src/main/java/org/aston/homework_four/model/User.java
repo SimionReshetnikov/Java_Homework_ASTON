@@ -1,4 +1,4 @@
-package org.example.HomeworkFour.model;
+package org.aston.homework_four.model;
 
 import jakarta.persistence.*;
 

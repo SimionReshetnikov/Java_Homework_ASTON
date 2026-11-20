@@ -1,4 +1,4 @@
-package org.example.HomeworkFour.DTO.response;
+package org.aston.homework_four.DTO.response;
 
 import java.time.LocalDateTime;
 

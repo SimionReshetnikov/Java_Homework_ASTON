@@ -1,10 +1,9 @@
-package org.example.HomeworkFour.controller;
+package org.aston.homework_four.controller;
 
 import jakarta.validation.Valid;
-import org.example.HomeworkFour.DTO.request.UserRequestDto;
-import org.example.HomeworkFour.DTO.response.UserResponseDto;
-import org.example.HomeworkFour.model.User;
-import org.example.HomeworkFour.service.UserService;
+import org.aston.homework_four.DTO.request.UserRequestDto;
+import org.aston.homework_four.DTO.response.UserResponseDto;
+import org.aston.homework_four.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +11,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")

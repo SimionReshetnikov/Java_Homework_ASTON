@@ -1,9 +1,9 @@
-package org.example.HomeworkFour.DTO.request;
+package org.aston.homework_four.DTO.request;
 
 import jakarta.validation.constraints.*;
 
 public class UserRequestDto {
-    @NotNull(message = "Имя пользователя не может быть пустым.")
+    @NotBlank(message = "Имя пользователя не может быть пустым.")
     @Size(min = 2, max = 50, message = "Имя пользователя должно содержать от 2 до 50 символов.")
     private String name;
 
@@ -11,7 +11,7 @@ public class UserRequestDto {
     @Max(value = 120, message = "Возраст пользователя не может быть больше 120 лет.")
     private int age;
 
-    @NotNull(message = "Email пользователя не может быть пустым.")
+    @NotBlank(message = "Email пользователя не может быть пустым.")
     @Email(message = "Некорректный формат поля email.")
     private String email;
 
