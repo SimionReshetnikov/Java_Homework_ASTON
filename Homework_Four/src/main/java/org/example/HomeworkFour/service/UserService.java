@@ -34,7 +34,7 @@ public class UserService {
     }
 
     @Transactional
-    public Optional<User> updateUser(long id, User updateUser) {
+    public Optional<UserResponseDto> updateUser(long id, UserRequestDto updateUser) {
         Optional<User> currentUserOpt = userRepository.findById(id);
         if (currentUserOpt.isEmpty()) {
             return Optional.empty();
@@ -42,19 +42,46 @@ public class UserService {
 
         User currentUser = currentUserOpt.get();
         currentUser.setName(updateUser.getName());
+        currentUser.setAge(updateUser.getAge());
+        currentUser.setEmail(updateUser.getEmail());
 
-        return Optional.of(userRepository.save(currentUser));
+        return Optional.of(new UserResponseDto(
+                currentUser.getId(),
+                currentUser.getName(),
+                currentUser.getEmail(),
+                currentUser.getAge(),
+                currentUser.getCreatedAt()
+        ));
     }
 
-    public Optional<User> findById(long id) {
-        return userRepository.findById(id);
+    public Optional<UserResponseDto> findById(long id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            return Optional.empty();
+        }
+
+        User currentUser = user.get();
+        return Optional.of(new UserResponseDto(
+                currentUser.getId(),
+                currentUser.getName(),
+                currentUser.getEmail(),
+                currentUser.getAge(),
+                currentUser.getCreatedAt()
+        ));
     }
 
-    public List<User> findAll() {
-        return userRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+    public List<UserResponseDto> findAll() {
+        return userRepository.findAll(Sort.by(Sort.Direction.ASC, "id"))
+                .stream()
+                .map(u -> new UserResponseDto(u.getId(), u.getName(), u.getEmail(), u.getAge(), u.getCreatedAt()))
+                .toList();
     }
 
-    public void deleteUser(long id) {
+    public boolean deleteUser(long id) {
+        if (userRepository.findById(id).isEmpty()) {
+            return false;
+        }
         userRepository.deleteById(id);
+        return true;
     }
 }
